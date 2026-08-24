@@ -20,10 +20,11 @@ echo ================================================
 echo.
 
 :: ==================================================
-:: 1. DISM
+:: 1. DISM & COMPONENT CLEANUP
 :: ==================================================
-echo [1/8] DISM - Restoring Windows Image Health...
+echo [1/8] DISM - Restoring Image Health ^& Cleaning Up Old Updates...
 DISM /Online /Cleanup-Image /RestoreHealth
+DISM /Online /Cleanup-Image /StartComponentCleanup
 echo DISM selesai.
 echo.
 
