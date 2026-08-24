@@ -1,109 +1,100 @@
 @echo off
-title Windows Full Repair & Optimization Tool
+title Windows Full Repair ^& Optimization Tool
 color 0A
 
+:: ==================================================
+:: CEK HAK AKSES ADMINISTRATOR
+:: ==================================================
+openfiles >nul 2>&1
+if '%errorlevel%' NEQ '0' (
+    echo Meminta hak akses Administrator...
+    powershell -Command "Start-Process '%~f0' -Verb RunAs"
+    exit /b
+)
+
 echo ================================================
-echo         WINDOWS FULL REPAIR & OPTIMIZATION
+echo         WINDOWS FULL REPAIR ^& OPTIMIZATION
 echo ================================================
-echo Jalankan file ini sebagai ADMINISTRATOR!
+echo Proses akan berjalan otomatis. Mohon tunggu...
+echo ================================================
 echo.
-pause
 
 :: ==================================================
 :: 1. DISM
 :: ==================================================
-echo ================================================
-echo [1/8] DISM - Restoring Windows Image Health
-echo ================================================
+echo [1/8] DISM - Restoring Windows Image Health...
 DISM /Online /Cleanup-Image /RestoreHealth
-echo.
 echo DISM selesai.
-pause
+echo.
 
 :: ==================================================
 :: 2. SFC
 :: ==================================================
-echo ================================================
-echo [2/8] SFC - System File Checker
-echo ================================================
+echo [2/8] SFC - System File Checker...
 sfc /scannow
-echo.
 echo SFC selesai.
-pause
+echo.
 
 :: ==================================================
 :: 3. CHKDSK
 :: ==================================================
-echo ================================================
-echo [3/8] CHKDSK - Disk Check (Drive C)
-echo ================================================
-echo CHKDSK akan dijalankan pada drive C:
-echo Jika diminta restart, ketik Y lalu ENTER.
+echo [3/8] CHKDSK - Disk Check (Drive C)...
+echo Menjadwalkan chkdsk saat restart jika drive sedang digunakan...
+echo y | chkdsk C: /f /r
+echo CHKDSK selesai/dijadwalkan.
 echo.
-chkdsk C: /f /r
-echo CHKDSK selesai atau dijadwalkan.
-pause
 
 :: ==================================================
-:: 4. OPTIMIZE DRIVE C
+:: 4. OPTIMIZE SEMUA DRIVE LOKAL
 :: ==================================================
-echo ================================================
-echo [4/8] OPTIMIZE DRIVE C (Defrag / Trim)
-echo ================================================
-defrag C: /O
-echo Drive C selesai dioptimasi.
-pause
+echo [4/8] OPTIMIZE DRIVE (Defrag / Trim semua volume)...
+defrag /C /O
+echo Optimasi drive selesai.
+echo.
 
 :: ==================================================
-:: 5. OPTIMIZE DRIVE D
+:: 5. DISK CLEANUP
 :: ==================================================
-echo ================================================
-echo [5/8] OPTIMIZE DRIVE D (Defrag / Trim)
-echo ================================================
-defrag D: /O
-echo Drive D selesai dioptimasi.
-pause
-
-:: ==================================================
-:: 6. DISK CLEANUP
-:: ==================================================
-echo ================================================
-echo [6/8] DISK CLEANUP (Silent Mode)
-echo ================================================
+echo [5/8] DISK CLEANUP (Silent Mode)...
 cleanmgr /sagerun:99
-echo Disk Cleanup selesai.
-pause
+echo Disk Cleanup diproses.
+echo.
 
 :: ==================================================
-:: 7. NETWORK RESET
+:: 6. NETWORK RESET
 :: ==================================================
-echo ================================================
-echo [7/8] NETWORK RESET (Winsock + TCP/IP)
-echo ================================================
-netsh winsock reset
-netsh int ip reset
-ipconfig /flushdns
-ipconfig /renew
+echo [6/8] NETWORK RESET (Winsock + TCP/IP)...
+netsh winsock reset >nul 2>&1
+netsh int ip reset >nul 2>&1
+ipconfig /flushdns >nul 2>&1
+ipconfig /renew >nul 2>&1
 echo Network reset selesai.
-pause
+echo.
 
 :: ==================================================
-:: 8. CLEAN TEMP FILES
+:: 7. CLEAN TEMP FILES & PREFETCH
 :: ==================================================
-echo ================================================
-echo [8/8] CLEAN TEMP FILES
-echo ================================================
-echo Menghapus file temporary...
-del /s /q %temp%\* >nul 2>&1
-del /s /q C:\Windows\Temp\* >nul 2>&1
-echo Temp folder dibersihkan.
-pause
+echo [7/8] CLEAN TEMP ^& JUNK FILES...
+echo Menghapus temporary files...
+del /s /q /f "%temp%\*" >nul 2>&1
+del /s /q /f "C:\Windows\Temp\*" >nul 2>&1
+del /s /q /f "C:\Windows\Prefetch\*" >nul 2>&1
+del /s /q /f "C:\Windows\SoftwareDistribution\Download\*" >nul 2>&1
+rd /s /q "%temp%" 2>nul
+rd /s /q "C:\Windows\Temp" 2>nul
+md "%temp%" 2>nul
+md "C:\Windows\Temp" 2>nul
+echo Folder junk dibersihkan.
+echo.
 
 :: ==================================================
 :: DONE
 :: ==================================================
 echo ================================================
-echo SEMUA PROSES PERBAIKAN & OPTIMASI SELESAI
-echo Silakan restart komputer Anda.
+echo [8/8] SEMUA PROSES PERBAIKAN ^& OPTIMASI SELESAI
 echo ================================================
+echo Catatan: Beberapa perubahan dan chkdsk mungkin 
+echo membutuhkan restart komputer untuk berlaku penuh.
+echo ================================================
+echo.
 pause
