@@ -6,7 +6,7 @@ This is a comprehensive Windows batch script designed to automatically run vario
 
 ## Features
 
-The script performs the following 8 operations sequentially:
+The script offers **3 execution modes**: Automatic (runs all), Manual (choose which to run), and Cancel CHKDSK. It can perform the following 8 operations:
 
 1. **DISM & Component Cleanup**: Uses Deployment Image Servicing and Management (DISM) to repair the Windows system image and clean up superseded updates.
 2. **System File Checker (SFC)**: Scans and repairs corrupted or missing Windows system files.
@@ -21,10 +21,14 @@ The script performs the following 8 operations sequentially:
 
 1. Double-click the `repair_windows.bat` file.
 2. The script will automatically check if it has Administrator privileges. If not, it will prompt you with a User Account Control (UAC) dialog to run as Administrator. Click **Yes**.
-3. Wait for the script to finish all operations. This process may take some time depending on your system's condition and hardware speed.
+3. **Choose the execution mode:**
+   - **[1] Automatic**: Runs all operations sequentially without asking.
+   - **[2] Manual**: Prompts you before running each operation (Y/N).
+   - **[3] Cancel CHKDSK**: Cancels a previously scheduled disk check upon restart.
+4. Wait for the script to finish all operations. This process may take some time depending on your system's condition and hardware speed.
    - *Note: A detailed log of all operations is automatically saved to `repair_log.txt` in the same directory.*
-4. Once completed, press any key to close the window.
-5. **Restart your computer** for all changes and scheduled disk checks (CHKDSK) to take full effect.
+5. Once completed, press any key to close the window.
+6. **Restart your computer** for all changes and scheduled disk checks (CHKDSK) to take full effect.
 
 ## Warning
 - Running CHKDSK and DISM can take a considerable amount of time. Do not interrupt the process once it has started.
@@ -38,7 +42,7 @@ Ini adalah skrip batch Windows komprehensif yang dirancang untuk secara otomatis
 
 ## Fitur
 
-Skrip ini menjalankan 8 operasi berikut secara berurutan:
+Skrip ini menawarkan **3 mode eksekusi**: Otomatis (jalankan semua), Manual (pilih yang ingin dijalankan), dan Batalkan CHKDSK. Ia dapat menjalankan 8 operasi berikut:
 
 1. **DISM & Component Cleanup**: Menggunakan Deployment Image Servicing and Management (DISM) untuk memperbaiki image sistem Windows dan membersihkan pembaruan yang sudah usang.
 2. **System File Checker (SFC)**: Memindai dan memperbaiki file sistem Windows yang rusak atau hilang.
@@ -53,10 +57,14 @@ Skrip ini menjalankan 8 operasi berikut secara berurutan:
 
 1. Klik ganda pada file `repair_windows.bat`.
 2. Skrip akan secara otomatis memeriksa apakah memiliki hak akses Administrator. Jika tidak, ia akan meminta Anda melalui dialog User Account Control (UAC) untuk menjalankan sebagai Administrator. Klik **Yes** (Ya).
-3. Tunggu hingga skrip menyelesaikan semua operasi. Proses ini mungkin memakan waktu tergantung pada kondisi sistem dan kecepatan perangkat keras Anda.
+3. **Pilih mode eksekusi:**
+   - **[1] Otomatis**: Menjalankan semua operasi secara berurutan tanpa bertanya.
+   - **[2] Manual**: Meminta persetujuan Anda sebelum menjalankan setiap operasi (Y/N).
+   - **[3] Batalkan jadwal CHKDSK**: Membatalkan pemeriksaan disk yang dijadwalkan pada saat restart berikutnya.
+4. Tunggu hingga skrip menyelesaikan semua operasi. Proses ini mungkin memakan waktu tergantung pada kondisi sistem dan kecepatan perangkat keras Anda.
    - *Catatan: Log detail dari semua operasi secara otomatis disimpan ke `repair_log.txt` di direktori yang sama.*
-4. Setelah selesai, tekan tombol apa saja untuk menutup jendela.
-5. **Restart komputer Anda** agar semua perubahan dan pemeriksaan disk yang dijadwalkan (CHKDSK) dapat berlaku sepenuhnya.
+5. Setelah selesai, tekan tombol apa saja untuk menutup jendela.
+6. **Restart komputer Anda** agar semua perubahan dan pemeriksaan disk yang dijadwalkan (CHKDSK) dapat berlaku sepenuhnya.
 
 ## Peringatan
 - Menjalankan CHKDSK dan DISM bisa memakan waktu yang cukup lama. Jangan hentikan proses setelah dimulai.
