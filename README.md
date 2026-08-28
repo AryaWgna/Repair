@@ -22,6 +22,7 @@ The script performs the following 8 operations sequentially:
 1. Double-click the `repair_windows.bat` file.
 2. The script will automatically check if it has Administrator privileges. If not, it will prompt you with a User Account Control (UAC) dialog to run as Administrator. Click **Yes**.
 3. Wait for the script to finish all operations. This process may take some time depending on your system's condition and hardware speed.
+   - *Note: A detailed log of all operations is automatically saved to `repair_log.txt` in the same directory.*
 4. Once completed, press any key to close the window.
 5. **Restart your computer** for all changes and scheduled disk checks (CHKDSK) to take full effect.
 
@@ -53,6 +54,7 @@ Skrip ini menjalankan 8 operasi berikut secara berurutan:
 1. Klik ganda pada file `repair_windows.bat`.
 2. Skrip akan secara otomatis memeriksa apakah memiliki hak akses Administrator. Jika tidak, ia akan meminta Anda melalui dialog User Account Control (UAC) untuk menjalankan sebagai Administrator. Klik **Yes** (Ya).
 3. Tunggu hingga skrip menyelesaikan semua operasi. Proses ini mungkin memakan waktu tergantung pada kondisi sistem dan kecepatan perangkat keras Anda.
+   - *Catatan: Log detail dari semua operasi secara otomatis disimpan ke `repair_log.txt` di direktori yang sama.*
 4. Setelah selesai, tekan tombol apa saja untuk menutup jendela.
 5. **Restart komputer Anda** agar semua perubahan dan pemeriksaan disk yang dijadwalkan (CHKDSK) dapat berlaku sepenuhnya.
 
