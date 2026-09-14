@@ -36,3 +36,35 @@ Mode: MANUAL
 [21:55:42.81] [8/8] SEMUA PROSES YANG DIPILIH TELAH SELESAI 
 ================================================ 
  
+ 
+================================================ 
+ WINDOWS FULL REPAIR LOG - Sat 08/29/2026 15:45:43.35 
+================================================ 
+ 
+================================================ 
+ WINDOWS FULL REPAIR LOG - Sun 08/30/2026 21:38:19.74 
+================================================ 
+================================================ 
+        WINDOWS FULL REPAIR & OPTIMIZATION 
+Mode: OTOMATIS 
+================================================ 
+ 
+[21:38:30.10] [1/8] DISM - Restoring Image Health & Cleaning Up Old Updates... 
+[21:49:08.60] - DISM RestoreHealth: BERHASIL 
+[21:49:11.05] - DISM ComponentCleanup: BERHASIL 
+[21:49:11.05] [2/8] SFC - System File Checker... 
+[21:50:18.83] - SFC Scan: BERHASIL 
+[21:50:18.83] [3/8] CHKDSK - Disk Check (Drive C)... 
+[21:51:19.85] - CHKDSK Dijadwalkan/Selesai 
+[21:51:19.85] [4/8] OPTIMIZE DRIVE (Defrag / Trim semua volume)... 
+[21:55:22.95] - Optimasi Drive: BERHASIL 
+[21:55:22.95] [5/8] DISK CLEANUP (Silent Mode)... 
+[21:58:42.67] - Disk Cleanup: DIPROSES 
+[21:58:42.67] [6/8] NETWORK RESET (Winsock + TCP/IP)... 
+[21:58:42.83] - Network Reset: BERHASIL 
+[21:58:42.83] [7/8] CLEAN TEMP & JUNK FILES... 
+[21:58:43.19] - Clean Temp & Junk Files: BERHASIL 
+================================================ 
+[21:58:43.20] [8/8] SEMUA PROSES YANG DIPILIH TELAH SELESAI 
+================================================ 
+ 
