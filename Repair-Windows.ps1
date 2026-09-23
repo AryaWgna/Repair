@@ -81,7 +81,7 @@ Invoke-Task -TaskName "[1/8] Windows Image Repair (DISM)" -Action {
 Invoke-Task -TaskName "[2/8] System File Checker (SFC)" -Action {
     # SFC masih menggunakan eksekusi .exe bawaan karena tidak ada cmdlet khusus, 
     # namun PowerShell akan menangkap outputnya.
-    sfc /scannow
+    sfc.exe /scannow | Out-String -Stream
 }
 
 # 3. CHKDSK (Check Disk)
