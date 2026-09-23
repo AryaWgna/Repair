@@ -69,40 +69,60 @@ function Invoke-Task {
     }
 }
 
-# 1. DISM / Windows Image Repair
-Invoke-Task -TaskName "Windows Image Repair (DISM)" -Action {
+# 1. DISM / Windows Image Repair + Component Cleanup
+Invoke-Task -TaskName "[1/8] Windows Image Repair (DISM)" -Action {
     # Perintah modern PowerShell untuk DISM
     Repair-WindowsImage -Online -RestoreHealth
+    # Membersihkan komponen update lama untuk menghemat ruang disk
+    DISM /Online /Cleanup-Image /StartComponentCleanup
 }
 
 # 2. SFC (System File Checker)
-Invoke-Task -TaskName "System File Checker (SFC)" -Action {
+Invoke-Task -TaskName "[2/8] System File Checker (SFC)" -Action {
     # SFC masih menggunakan eksekusi .exe bawaan karena tidak ada cmdlet khusus, 
     # namun PowerShell akan menangkap outputnya.
     sfc /scannow
 }
 
-# 3. Optimize Drive (Defrag / TRIM)
-Invoke-Task -TaskName "Optimize System Drive" -Action {
+# 3. CHKDSK (Check Disk)
+Invoke-Task -TaskName "[3/8] Check Disk (CHKDSK)" -Action {
+    Write-Host "Peringatan: CHKDSK akan dijadwalkan pada saat komputer restart." -ForegroundColor Yellow
+    # Cmdlet modern PowerShell untuk scan disk
+    Repair-Volume -DriveLetter C -Scan
+    # Jika ingin deep repair saat restart, otomatis jawab 'Y'
+    "Y" | chkdsk C: /f /r /x
+}
+
+# 4. Optimize Drive (Defrag / TRIM)
+Invoke-Task -TaskName "[4/8] Optimize System Drive" -Action {
     # Cmdlet PowerShell modern untuk optimasi Drive
     Optimize-Volume -DriveLetter C -ReTrim -Defrag -Verbose
 }
 
-# 4. Network Reset
-Invoke-Task -TaskName "Network Reset (DNS & Winsock)" -Action {
+# 5. Disk Cleanup
+Invoke-Task -TaskName "[5/8] Disk Cleanup" -Action {
+    # Menjalankan Disk Cleanup otomatis (sama seperti cleanmgr /sagerun:99)
+    cleanmgr /sagerun:99
+}
+
+# 6. Network Reset
+Invoke-Task -TaskName "[6/8] Network Reset (DNS & Winsock)" -Action {
     # Reset DNS Cache dengan cmdlet modern
     Clear-DnsClientCache
     # IP reset & Winsock (Netsh masih yang paling aman untuk Winsock)
     netsh winsock reset
     netsh int ip reset
+    # Memperbarui IP dari DHCP
+    ipconfig /renew
 }
 
-# 5. Disk Cleanup (Modern Temp Clear)
-Invoke-Task -TaskName "Bersihkan Temporary Files" -Action {
-    # Membersihkan folder Temp user dan sistem tanpa menyentuh Prefetch!
+# 7. Clean Temp Files & Prefetch
+Invoke-Task -TaskName "[7/8] Bersihkan Temporary Files & Prefetch" -Action {
+    # Membersihkan folder Temp user, sistem, Prefetch, dan cache update
     $tempPaths = @(
         $env:TEMP,
         "$env:SystemRoot\Temp",
+        "$env:SystemRoot\Prefetch",
         "$env:SystemRoot\SoftwareDistribution\Download"
     )
 
@@ -114,20 +134,12 @@ Invoke-Task -TaskName "Bersihkan Temporary Files" -Action {
     }
 }
 
-# 6. Check Disk (CHKDSK)
-Invoke-Task -TaskName "Check Disk (CHKDSK)" -Action {
-    Write-Host "Peringatan: CHKDSK akan dijadwalkan pada saat komputer restart." -ForegroundColor Yellow
-    # Cmdlet modern PowerShell
-    Repair-Volume -DriveLetter C -Scan
-    # Jika ingin deep repair saat restart, otomatis jawab 'Y'
-    "Y" | chkdsk C: /f /r /x
-}
-
 Write-Host "`n================================================" -ForegroundColor Cyan
-Write-Host " SEMUA PROSES TELAH SELESAI" -ForegroundColor Green
+Write-Host " [8/8] SEMUA PROSES YANG DIPILIH TELAH SELESAI" -ForegroundColor Green
 Write-Host "================================================" -ForegroundColor Cyan
 Write-Host "Beberapa aksi mungkin membutuhkan Restart untuk berlaku penuh."
 
 Stop-Transcript
+Start-Process $LogFile
 Write-Host "Tekan Enter untuk keluar..."
 Read-Host
