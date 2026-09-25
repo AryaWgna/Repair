@@ -101,8 +101,8 @@ Invoke-Task -TaskName "[4/8] Optimize System Drive" -Action {
 
 # 5. Disk Cleanup
 Invoke-Task -TaskName "[5/8] Disk Cleanup" -Action {
-    # Menjalankan Disk Cleanup otomatis (sama seperti cleanmgr /sagerun:99)
-    cleanmgr /sagerun:99
+    # Menjalankan Disk Cleanup otomatis (sama seperti cleanmgr /sagerun:99) dan tunggu hingga selesai
+    Start-Process -FilePath "cleanmgr.exe" -ArgumentList "/sagerun:99" -Wait
 }
 
 # 6. Network Reset
@@ -140,6 +140,7 @@ Write-Host "================================================" -ForegroundColor C
 Write-Host "Beberapa aksi mungkin membutuhkan Restart untuk berlaku penuh."
 
 Stop-Transcript
-Start-Process $LogFile
+# Membuka log menggunakan explorer agar Notepad tidak terbuka sebagai proses Administrator yang bisa memblokir shutdown
+Start-Process "explorer.exe" -ArgumentList $LogFile
 Write-Host "Tekan Enter untuk keluar..."
 Read-Host
