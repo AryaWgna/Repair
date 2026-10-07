@@ -70,7 +70,7 @@ function Invoke-Task {
 }
 
 # 1. DISM / Windows Image Repair + Component Cleanup
-Invoke-Task -TaskName "[1/8] Windows Image Repair (DISM)" -Action {
+Invoke-Task -TaskName "[1/7] Windows Image Repair (DISM)" -Action {
     # Perintah modern PowerShell untuk DISM
     Repair-WindowsImage -Online -RestoreHealth
     # Membersihkan komponen update lama untuk menghemat ruang disk
@@ -78,14 +78,14 @@ Invoke-Task -TaskName "[1/8] Windows Image Repair (DISM)" -Action {
 }
 
 # 2. SFC (System File Checker)
-Invoke-Task -TaskName "[2/8] System File Checker (SFC)" -Action {
+Invoke-Task -TaskName "[2/7] System File Checker (SFC)" -Action {
     # SFC masih menggunakan eksekusi .exe bawaan karena tidak ada cmdlet khusus, 
     # namun PowerShell akan menangkap outputnya.
     sfc.exe /scannow | Out-String -Stream
 }
 
 # 3. CHKDSK (Check Disk)
-Invoke-Task -TaskName "[3/8] Check Disk (CHKDSK)" -Action {
+Invoke-Task -TaskName "[3/7] Check Disk (CHKDSK)" -Action {
     Write-Host "Peringatan: CHKDSK akan dijadwalkan pada saat komputer restart." -ForegroundColor Yellow
     # Cmdlet modern PowerShell untuk scan disk
     Repair-Volume -DriveLetter C -Scan
@@ -94,19 +94,65 @@ Invoke-Task -TaskName "[3/8] Check Disk (CHKDSK)" -Action {
 }
 
 # 4. Optimize Drive (Defrag / TRIM)
-Invoke-Task -TaskName "[4/8] Optimize System Drive" -Action {
+Invoke-Task -TaskName "[4/7] Optimize System Drive" -Action {
     # Cmdlet PowerShell modern untuk optimasi Drive
     Optimize-Volume -DriveLetter C -ReTrim -Defrag -Verbose
 }
 
-# 5. Disk Cleanup
-Invoke-Task -TaskName "[5/8] Disk Cleanup" -Action {
-    # Menjalankan Disk Cleanup otomatis (sama seperti cleanmgr /sagerun:99) dan tunggu hingga selesai
-    Start-Process -FilePath "cleanmgr.exe" -ArgumentList "/sagerun:99" -Wait
+# 5. Disk Cleanup (tanpa cleanmgr.exe — langsung via PowerShell agar tidak hang)
+Invoke-Task -TaskName "[5/7] Disk Cleanup" -Action {
+    $cleanupTargets = @(
+        @{ Name = "Windows Temp";               Path = "$env:SystemRoot\Temp" },
+        @{ Name = "User Temp";                   Path = $env:TEMP },
+        @{ Name = "Windows Update Cache";        Path = "$env:SystemRoot\SoftwareDistribution\Download" },
+        @{ Name = "Prefetch";                    Path = "$env:SystemRoot\Prefetch" },
+        @{ Name = "Thumbnail Cache";             Path = "$env:LOCALAPPDATA\Microsoft\Windows\Explorer\thumbcache_*.db" },
+        @{ Name = "Windows Error Reports";       Path = "$env:LOCALAPPDATA\Microsoft\Windows\WER" },
+        @{ Name = "Delivery Optimization Cache"; Path = "$env:SystemRoot\SoftwareDistribution\DeliveryOptimization" },
+        @{ Name = "Windows Log Files";           Path = "$env:SystemRoot\Logs\CBS" },
+        @{ Name = "INetCache";                   Path = "$env:LOCALAPPDATA\Microsoft\Windows\INetCache" },
+        @{ Name = "Recent Items";                Path = "$env:APPDATA\Microsoft\Windows\Recent\AutomaticDestinations" }
+    )
+
+    $totalFreed = 0
+    foreach ($target in $cleanupTargets) {
+        $name = $target.Name
+        $targetPath = $target.Path
+
+        # Handle wildcard paths (e.g. thumbcache_*.db)
+        if ($targetPath -match '\*') {
+            $items = Get-Item -Path $targetPath -ErrorAction SilentlyContinue
+        } elseif (Test-Path $targetPath) {
+            $items = Get-ChildItem -Path $targetPath -Recurse -Force -ErrorAction SilentlyContinue
+        } else {
+            $items = $null
+        }
+
+        if ($items) {
+            $sizeBefore = ($items | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum
+            $items | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+            $freedMB = [math]::Round(($sizeBefore / 1MB), 1)
+            $totalFreed += $sizeBefore
+            Write-Host "  Dibersihkan: $name ($freedMB MB)" -ForegroundColor DarkGray
+        } else {
+            Write-Host "  Dilewati: $name (kosong/tidak ditemukan)" -ForegroundColor DarkGray
+        }
+    }
+
+    # Bersihkan Recycle Bin
+    try {
+        Clear-RecycleBin -Force -ErrorAction SilentlyContinue
+        Write-Host "  Dibersihkan: Recycle Bin" -ForegroundColor DarkGray
+    } catch {
+        Write-Host "  Dilewati: Recycle Bin (gagal atau kosong)" -ForegroundColor DarkGray
+    }
+
+    $totalFreedMB = [math]::Round(($totalFreed / 1MB), 1)
+    Write-Host "Total ruang yang dibebaskan: ~$totalFreedMB MB" -ForegroundColor Green
 }
 
 # 6. Network Reset
-Invoke-Task -TaskName "[6/8] Network Reset (DNS & Winsock)" -Action {
+Invoke-Task -TaskName "[6/7] Network Reset (DNS & Winsock)" -Action {
     # Reset DNS Cache dengan cmdlet modern
     Clear-DnsClientCache
     # IP reset & Winsock (Netsh masih yang paling aman untuk Winsock)
@@ -116,26 +162,8 @@ Invoke-Task -TaskName "[6/8] Network Reset (DNS & Winsock)" -Action {
     ipconfig /renew
 }
 
-# 7. Clean Temp Files & Prefetch
-Invoke-Task -TaskName "[7/8] Bersihkan Temporary Files & Prefetch" -Action {
-    # Membersihkan folder Temp user, sistem, Prefetch, dan cache update
-    $tempPaths = @(
-        $env:TEMP,
-        "$env:SystemRoot\Temp",
-        "$env:SystemRoot\Prefetch",
-        "$env:SystemRoot\SoftwareDistribution\Download"
-    )
-
-    foreach ($path in $tempPaths) {
-        if (Test-Path $path) {
-            Write-Host "Membersihkan: $path" -ForegroundColor DarkGray
-            Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-        }
-    }
-}
-
 Write-Host "`n================================================" -ForegroundColor Cyan
-Write-Host " [8/8] SEMUA PROSES YANG DIPILIH TELAH SELESAI" -ForegroundColor Green
+Write-Host " [7/7] SEMUA PROSES YANG DIPILIH TELAH SELESAI" -ForegroundColor Green
 Write-Host "================================================" -ForegroundColor Cyan
 Write-Host "Beberapa aksi mungkin membutuhkan Restart untuk berlaku penuh."
 
